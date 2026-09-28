@@ -5,11 +5,13 @@ Contexte durable : **CLAUDE.md**. Ce fichier dit où on en est. Dépôt indépen
 ## 28/09/2026 — Mana sorti de pi-agents
 
 - Code et historique déplacés de `pi-agents` (branche `claude/mana-mvp-simulator-dashboard-gqohve`, dossier `mana/`)
-  vers ce dépôt privé, à la racine.
+  vers ce dépôt, à la racine. Dépôt **public** (Pages gratuit) : recréé le 28/09 sans le reçu fiscal AEJB
+  (retiré de l'historique) ; `*.pdf` ignoré, ne jamais y committer de document client.
 - Site publié depuis ce dépôt par GitHub Actions : https://blykegluk.github.io/mana/portail.html.
   `pi-agents` n'est plus utilisé pour Mana (rien n'y a été supprimé).
 - Reste : redéployer `surveiller-collectes` (nouvelle URL du portail par défaut, utile seulement quand l'e-mail sera actif) ;
-  vérifier dans Supabase (Authentication → URL Configuration) que `https://blykegluk.github.io/mana/**` est autorisé pour la connexion Google.
+  Supabase (projet « Naturalia compta ») → Authentication → URL Configuration : Site URL et Redirect URLs sur `blykegluk.github.io/mana`
+  seulement (l'ancien site pi-agents reste en ligne mais n'est plus autorisé à la connexion).
 
 ## Terminé et en ligne
 
