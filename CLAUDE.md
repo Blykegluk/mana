@@ -5,10 +5,10 @@ sur `main`. Point d'étape et prochaines actions : **NOTES.md**.
 
 ## Publication du site
 
-- Le site en ligne est encore servi par l'ancien dépôt : https://blykegluk.github.io/pi-agents/portail.html (portail)
-  et `index.html` (vitrine), branche `gh-pages` de `Blykegluk/pi-agents`.
-- Ce dépôt est privé : GitHub Pages n'y est pas disponible en offre gratuite. Hébergement à décider (Netlify ou Vercel),
-  puis mettre à jour `MANA_URL_PORTAIL` (et la valeur par défaut dans `supabase/functions/surveiller-collectes/index.ts`).
+- Site : https://blykegluk.github.io/mana/portail.html (portail) et https://blykegluk.github.io/mana/ (vitrine).
+- Publié par GitHub Actions (`.github/workflows/publier.yml`) à chaque push sur `main` : tests, build, GitHub Pages.
+  Réglage requis une fois : Settings → Pages → Source « GitHub Actions ».
+- L'ancien site `blykegluk.github.io/pi-agents/` et le dépôt `pi-agents` ne sont plus utilisés pour Mana (conservés, pas supprimés).
 
 ## Mana en bref
 
@@ -67,7 +67,7 @@ npm run verify:passages     # tests du moteur de passages / signaux / rappels (v
 npm run surveillance:preparer   # copie types + lib partagés dans surveiller-collectes et la FAQ dans preparer-reponse
 ```
 
-- **Publier le site** : `npm run build` → `dist/` ; hébergement à définir (voir « Publication du site »).
+- **Publier le site** : push sur `main` (workflow « Publier le site ») ; vérifier le run dans l'onglet Actions.
 - **Migrations** : écrire `supabase/migrations/AAAAMMJJ_nom.sql`, puis l'appliquer via l'outil MCP Supabase
   `apply_migration` (pas de CLI supabase dans l'environnement).
 - **Edge Functions** : `npm run surveillance:preparer` si `lib/` partagé a changé, puis déployer via l'outil MCP

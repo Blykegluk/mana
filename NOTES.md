@@ -6,12 +6,14 @@ Contexte durable : **CLAUDE.md**. Ce fichier dit où on en est. Dépôt indépen
 
 - Code et historique déplacés de `pi-agents` (branche `claude/mana-mvp-simulator-dashboard-gqohve`, dossier `mana/`)
   vers ce dépôt privé, à la racine.
-- À faire : choisir l'hébergement du site (dépôt privé → pas de GitHub Pages gratuit), le publier, mettre à jour
-  `MANA_URL_PORTAIL`, puis retirer Mana de `pi-agents` (`portail-src/`, branche Mana, `gh-pages`) une fois le nouveau site en ligne.
+- Site publié depuis ce dépôt par GitHub Actions : https://blykegluk.github.io/mana/portail.html.
+  `pi-agents` n'est plus utilisé pour Mana (rien n'y a été supprimé).
+- Reste : redéployer `surveiller-collectes` (nouvelle URL du portail par défaut, utile seulement quand l'e-mail sera actif) ;
+  vérifier dans Supabase (Authentication → URL Configuration) que `https://blykegluk.github.io/mana/**` est autorisé pour la connexion Google.
 
 ## Terminé et en ligne
 
-- App complète (Saisie, Magasins, Bilan, Messages, Admin) publiée sur GitHub Pages (ancien dépôt `pi-agents`).
+- App complète (Saisie, Magasins, Bilan, Messages, Admin) publiée sur GitHub Pages.
 - Moteur de surveillance nocturne (`surveiller-collectes`, cron 03:10 UTC) : passages manqués, signaux, dossiers de suivi,
   rappels au magasin, boucle de relance / remplacement, file d'e-mails. Tests `verify:passages` au vert.
 - Console Admin : onglets À faire, Dossiers, Signaux, Clients, Réponses & style, Documents ; mails préparés aux

@@ -47,7 +47,7 @@ interface Compte {
 /** Adresse d'expédition et domaine : absents tant que le domaine n'est pas configuré. */
 const EXPEDITEUR = Deno.env.get('MANA_EXPEDITEUR') ?? ''
 const DOMAINE = EXPEDITEUR.includes('@') ? EXPEDITEUR.split('@')[1].replace(/>$/, '') : ''
-const URL_PORTAIL = Deno.env.get('MANA_URL_PORTAIL') ?? 'https://blykegluk.github.io/pi-agents/portail.html'
+const URL_PORTAIL = Deno.env.get('MANA_URL_PORTAIL') ?? 'https://blykegluk.github.io/mana/portail.html'
 
 /** Qui reçoit les e-mails d'un magasin : le compte, plus les accès partagés sur ce magasin. */
 async function destinatairesMagasin(sb: SupabaseClient, compte: Compte, magasinId: string | null): Promise<string[]> {
