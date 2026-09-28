@@ -1,2 +1,5 @@
 node_modules/
 dist/
+
+# Documents générés (reçus fiscaux, factures) : jamais dans le dépôt, il est public
+*.pdf
