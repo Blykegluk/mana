@@ -91,7 +91,14 @@ export function AssociationsMagasin({
   const [kgJour, setKgJour] = useState(magasin.miseEnPlace?.gisementKgJour ? String(magasin.miseEnPlace.gisementKgJour) : '')
   const [envoi, setEnvoi] = useState(false)
   const [message, setMessage] = useState('')
-  const brouillonValide = brouillon.nom.trim() !== '' && /^\S+@\S+\.\S+$/.test((brouillon.email ?? '').trim())
+  const [manque, setManque] = useState('')
+  // Ce qui empêche d'enregistrer, dit en clair au clic plutôt qu'un bouton grisé muet.
+  const champManquant =
+    brouillon.nom.trim() === ''
+      ? 'Indiquez le nom de l’association.'
+      : !/^\S+@\S+\.\S+$/.test((brouillon.email ?? '').trim())
+        ? 'Ajoutez l’e-mail de l’association : Mana s’en sert pour les relances.'
+        : ''
 
   useEffect(() => {
     if (formulaireInitial) ouvrir(formulaireInitial)
@@ -104,6 +111,7 @@ export function AssociationsMagasin({
       onConnexion()
       return
     }
+    setManque('')
     if (f?.type === 'modifier') setBrouillon({ ...COLLECTEUR_VIDE, ...magasin.collecteurs[f.index] })
     if (f?.type === 'ajout') setBrouillon({ ...COLLECTEUR_VIDE })
     setFormulaire(f)
@@ -114,7 +122,12 @@ export function AssociationsMagasin({
   const rechercheOuverte = ouvertes.some((d) => d.type === 'collecte')
 
   function enregistrerAssociation() {
-    const c = { ...brouillon, nom: brouillon.nom.trim() }
+    if (champManquant) {
+      setManque(champManquant)
+      return
+    }
+    setManque('')
+    const c = { ...brouillon, nom: brouillon.nom.trim(), email: brouillon.email?.trim() }
     const collecteurs =
       formulaire?.type === 'modifier' ? magasin.collecteurs.map((x, j) => (j === formulaire.index ? c : x)) : [...magasin.collecteurs, c]
     onSaveMagasin({ ...magasin, collecteurs })
@@ -189,9 +202,10 @@ export function AssociationsMagasin({
           <div className="asso-form" key={i}>
             <CollecteurForm valeur={brouillon} onChange={setBrouillon} session={session} magasin={magasin} societe={societe} />
             <div className="row-actions" style={{ marginTop: 10 }}>
-              <button className="btn btn-primary btn-sm" disabled={!brouillonValide} onClick={enregistrerAssociation}>Enregistrer</button>
+              <button className="btn btn-primary btn-sm" onClick={enregistrerAssociation}>Enregistrer</button>
               <button className="btn btn-ghost btn-sm" onClick={() => setFormulaire(null)}>Annuler</button>
             </div>
+            {manque && <p className="aide" style={{ color: 'var(--rouge)', margin: '6px 0 0' }}>{manque}</p>}
           </div>
         ) : (
           <div className="asso-ligne" key={i}>
@@ -226,12 +240,13 @@ export function AssociationsMagasin({
           <h4>Nouvelle association</h4>
           <CollecteurForm valeur={brouillon} onChange={setBrouillon} session={session} magasin={magasin} societe={societe} />
           <div className="row-actions" style={{ marginTop: 10 }}>
-            <button className="btn btn-primary btn-sm" disabled={!brouillonValide} onClick={enregistrerAssociation}>Enregistrer</button>
+            <button className="btn btn-primary btn-sm" onClick={enregistrerAssociation}>Enregistrer</button>
             {magasin.collecteurs.length > 0 && <button className="btn btn-ghost btn-sm" onClick={() => setFormulaire(null)}>Annuler</button>}
             {magasin.collecteurs.length === 0 && !rechercheOuverte && (
               <button className="btn btn-ghost btn-sm" onClick={() => ouvrir({ type: 'recherche' })}>Je n’en ai pas : Mana m’en trouve une</button>
             )}
           </div>
+          {manque && <p className="aide" style={{ color: 'var(--rouge)', margin: '6px 0 0' }}>{manque}</p>}
         </div>
       )}
 
