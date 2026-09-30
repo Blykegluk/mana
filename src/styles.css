@@ -1687,3 +1687,24 @@ button.lien {
 .champ-adresse-liste li.actif {
   background: var(--sable);
 }
+
+/* Bandeau « nouvelle version disponible » */
+.mise-a-jour {
+  position: fixed;
+  z-index: 60;
+  left: 50%;
+  top: 12px;
+  transform: translateX(-50%);
+  width: max-content;
+  max-width: calc(100% - 32px);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px 10px 16px;
+  background: var(--carte);
+  color: var(--encre);
+  border: 1px solid var(--trait);
+  border-radius: var(--radius);
+  box-shadow: var(--ombre);
+  font-size: 14.5px;
+}
