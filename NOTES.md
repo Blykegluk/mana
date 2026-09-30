@@ -11,7 +11,7 @@ Contexte durable : **CLAUDE.md**. Ce fichier dit où on en est. Dépôt indépen
   `pi-agents` n'est plus utilisé pour Mana (rien n'y a été supprimé).
 - Reste : redéployer `surveiller-collectes` (nouvelle URL du portail par défaut, utile seulement quand l'e-mail sera actif) ;
   Supabase (projet « Naturalia compta ») → Authentication → URL Configuration : Site URL et Redirect URLs sur `blykegluk.github.io/mana`
-  seulement (l'ancien site pi-agents reste en ligne mais n'est plus autorisé à la connexion).
+  seulement. L'ancien site pi-agents ne contient plus qu'une redirection vers /mana/ (30/09/2026).
 
 ## Terminé et en ligne
 

@@ -8,7 +8,7 @@ sur `main`. Point d'étape et prochaines actions : **NOTES.md**.
 - Site : https://blykegluk.github.io/mana/portail.html (portail) et https://blykegluk.github.io/mana/ (vitrine).
 - Publié par GitHub Actions (`.github/workflows/publier.yml`) à chaque push sur `main` : tests, build, GitHub Pages.
   Réglage requis une fois : Settings → Pages → Source « GitHub Actions ».
-- L'ancien site `blykegluk.github.io/pi-agents/` et le dépôt `pi-agents` ne sont plus utilisés pour Mana (conservés, pas supprimés).
+- L'ancien site `blykegluk.github.io/pi-agents/` redirige vers `/mana/` depuis le 30/09/2026 (contenu supprimé, service worker désinstallé).
 
 ## Mana en bref
 
