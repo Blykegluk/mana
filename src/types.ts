@@ -12,6 +12,8 @@ export interface Collecteur {
   plageAutre?: string
   /** Jours de passage, en clair. */
   jours: string
+  /** Adresse du siège de l'association — reprise sur la convention de don et la demande de rescrit. */
+  adresse?: string
   /** Identifiants de l'association (RNA W…, SIREN) — repris sur le reçu fiscal. */
   rna?: string
   siren?: string
@@ -25,6 +27,8 @@ export interface Collecteur {
   eligibilite?: 'inconnue' | 'a_verifier' | 'rescrit' | 'reseau_national'
   /** Statuts, récépissé de déclaration, rescrit, convention de don… */
   documents?: Justificatif[]
+  /** Convention de don déclarée signée par le magasin (AAAA-MM-JJ), quand l'analyse ne l'a pas reconnue. */
+  conventionSigneeLe?: string
   /** Dernière analyse des pièces par Mana (verdict calculé par règle fixe). */
   analyse?: AnalyseAssociation
 }

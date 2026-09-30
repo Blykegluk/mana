@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { Demande, AssociationTrouvee } from '../lib/cloud'
 import { trouverAssociations } from '../lib/cloud'
 import { LIBELLES_ELIGIBILITE } from './CollecteurForm'
+import { ChampAdresse } from './ChampAdresse'
 
 /**
  * Actions de Mana sur une demande liée aux associations (changement, problème,
@@ -308,7 +309,7 @@ export function ActionsAssociation({ demande, adminEmail, onConsigner, onProposi
           <p className="muted">Recherche sur le web autour du magasin. Une à deux minutes.</p>
           <label className="field">
             <span>Adresse du magasin</span>
-            <input type="text" value={adresse} onChange={(e) => setAdresse(e.target.value)} placeholder="Rue, code postal, ville" />
+            <ChampAdresse value={adresse} onChange={setAdresse} placeholder="Rue, code postal, ville" />
           </label>
           <button className="btn btn-primary btn-sm" disabled={recherche || !adresse.trim()} style={{ opacity: recherche || !adresse.trim() ? 0.5 : 1 }} onClick={() => void chercher()}>
             {recherche ? 'Recherche en cours…' : propositions.length ? 'Relancer la recherche' : 'Lancer la recherche'}

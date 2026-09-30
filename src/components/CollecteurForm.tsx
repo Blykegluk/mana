@@ -4,7 +4,8 @@ import type { AnalyseAssociation, Collecteur, Justificatif, Magasin, Societe } f
 import { FREQUENCES, PLAGES } from '../lib/annuaire'
 import { analyserAssociation, telechargerPieces, televerserDocumentAssociation, compteId } from '../lib/cloud'
 import { compresserPhoto } from '../lib/fichiers'
-import { eligibiliteDepuisVerdict, LIBELLES_VERDICT, verdictDepuisCriteres } from '../lib/eligibilite'
+import { conventionSignee, eligibiliteDepuisVerdict, LIBELLES_VERDICT, MOTIF_CONVENTION, verdictDepuisCriteres } from '../lib/eligibilite'
+import { ChampAdresse } from './ChampAdresse'
 import { pdfConventionDon, pdfDemandeRescrit } from '../lib/pdf'
 import { fmtDate } from '../lib/format'
 import { uid } from '../lib/storage'
@@ -94,6 +95,13 @@ export function CollecteurForm({
   const [message, setMessage] = useState('')
   const eligibilite = valeur.eligibilite ?? 'inconnue'
   const analyse = valeur.analyse
+  // Les recommandations suivent les pièces actuelles, pas celles du jour de l'analyse :
+  // une convention signée déposée ou déclarée après coup retire la demande de signature.
+  const signee = conventionSignee(valeur)
+  const actions = analyse ? verdictDepuisCriteres(analyse.criteres, { conventionSignee: signee }).actions : []
+  const motifs = analyse
+    ? signee && !analyse.motifs.includes(MOTIF_CONVENTION) ? [...analyse.motifs, MOTIF_CONVENTION] : analyse.motifs
+    : []
 
   /**
    * Smart upload : les pièces sont archivées, puis TOUTES les pièces de
@@ -144,7 +152,9 @@ export function CollecteurForm({
         ...nouveaux.map((ref, i) => ({ ref, doc: aAnalyser[i] })),
       ].filter((p) => p.doc.typeMime.startsWith('image/') || p.doc.typeMime === 'application/pdf')
       const brute = await analyserAssociation(paires.map((p) => p.doc), { nomAssociation: valeur.nom, magasin: magasin?.nom })
-      const regle = verdictDepuisCriteres(brute.criteres)
+      const regle = verdictDepuisCriteres(brute.criteres, {
+        conventionSignee: conventionSignee({ analyse: brute, documents, conventionSigneeLe: valeur.conventionSigneeLe }),
+      })
       const complete: AnalyseAssociation = {
         ...brute,
         le: new Date().toISOString(),
@@ -165,6 +175,7 @@ export function CollecteurForm({
         analyse: complete,
         eligibilite: eligibiliteDepuisVerdict(complete),
         nom: valeur.nom || complete.association.nom,
+        adresse: valeur.adresse || complete.association.siege || undefined,
         rna: valeur.rna || complete.association.rna || undefined,
         siren: valeur.siren || complete.association.siren || undefined,
       })
@@ -203,6 +214,11 @@ export function CollecteurForm({
           <input type="text" value={valeur.rna ?? valeur.siren ?? ''} onChange={(e) => onChange({ ...valeur, rna: e.target.value.trim().toUpperCase().startsWith('W') ? e.target.value.trim() : '', siren: /^\d/.test(e.target.value.trim()) ? e.target.value.trim() : '' })} placeholder="Ex. W931030100 ou 995298452" />
         </label>
       </div>
+
+      <label className="field">
+        <span>Adresse du siège (facultatif)</span>
+        <ChampAdresse value={valeur.adresse ?? ''} onChange={(v) => maj('adresse', v)} placeholder="Ex. 12 rue de la Solidarité, 75011 Paris" />
+      </label>
 
       <label className="field">
         <span>Fréquence de passage</span>
@@ -320,10 +336,10 @@ export function CollecteurForm({
               })}
             </div>
 
-            {analyse.motifs.length > 0 && (
+            {motifs.length > 0 && (
               <>
                 <div className="verdict-titre">Ce que les pièces établissent</div>
-                <ul>{analyse.motifs.map((m) => <li key={m}>{m}</li>)}</ul>
+                <ul>{motifs.map((m) => <li key={m}>{m}</li>)}</ul>
               </>
             )}
             {analyse.doutes.length > 0 && (
@@ -332,10 +348,10 @@ export function CollecteurForm({
                 <ul>{analyse.doutes.map((m) => <li key={m}>{m}</li>)}</ul>
               </>
             )}
-            {analyse.actions.length > 0 && (
+            {actions.length > 0 && (
               <>
                 <div className="verdict-titre">Ce que Mana propose</div>
-                <ol>{analyse.actions.map((m) => <li key={m}>{m}</li>)}</ol>
+                <ol>{actions.map((m) => <li key={m}>{m}</li>)}</ol>
               </>
             )}
             {analyse.verdict !== 'refus' && (
@@ -346,8 +362,22 @@ export function CollecteurForm({
                   </button>
                 )}
                 <button className="btn btn-ghost btn-sm" onClick={() => void pdfConventionDon(valeur, societe, magasin)}>
-                  ⬇ Convention de don à faire signer
+                  {signee ? '⬇ Modèle de convention de don' : '⬇ Convention de don à faire signer'}
                 </button>
+                {!signee && (
+                  <button
+                    className="btn btn-ghost btn-sm"
+                    title="Si la convention signée n’a pas été reconnue dans les pièces déposées"
+                    onClick={() => onChange({ ...valeur, conventionSigneeLe: new Date().toISOString().slice(0, 10) })}
+                  >
+                    ✓ La convention est signée
+                  </button>
+                )}
+                {valeur.conventionSigneeLe && (
+                  <button className="btn btn-ghost btn-sm" onClick={() => onChange({ ...valeur, conventionSigneeLe: undefined })}>
+                    Annuler « convention signée » ({fmtDate(valeur.conventionSigneeLe)})
+                  </button>
+                )}
               </div>
             )}
             {analyse.documents.some((d) => !d.lisible) && (

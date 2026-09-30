@@ -214,5 +214,50 @@ attendre('total facturé sur l’exercice = 18 % × 30 000', totalFacture, 5_400
   }
 }
 
+console.log('\n— Association : la convention signée n’est plus redemandée —')
+{
+  const { conventionSignee, verdictDepuisCriteres } = await import('../src/lib/eligibilite.ts')
+  const criteres = {
+    declarationPrefecture: 'oui', gestionDesinteressee: 'oui', activiteNonLucrative: 'oui', cercleRestreint: 'non', devolutionBoni: 'oui',
+    objetEligible: 'oui', rescritPositif: 'inconnu', dateRescrit: '', habilitationAideAlimentaire: 'inconnu', reseauNational: 'non', gratuiteBeneficiaires: 'oui',
+  } as const
+  const demandeSignature = (actions: string[]) => actions.some((a) => a.startsWith('Faire signer la convention'))
+  const lueSignee = { documents: [{ type: 'convention', resume: 'Convention de don signée par les deux parties le 20/09/2026.', lisible: true }] }
+  const lueVierge = { documents: [{ type: 'convention', resume: 'Modèle de convention non signé.', lisible: true }] }
+  const cas: [string, boolean, boolean][] = [
+    ['sans convention : signature demandée', demandeSignature(verdictDepuisCriteres(criteres).actions), true],
+    ['convention signée reconnue par l’analyse', conventionSignee({ analyse: lueSignee }), true],
+    ['convention vierge : pas comptée comme signée', conventionSignee({ analyse: lueVierge }), false],
+    ['pièce nommée « Convention de don — … » : comptée', conventionSignee({ documents: [{ id: 'd', nom: 'Convention de don — scan.pdf', type: 'application/pdf', taille: 1 }] }), true],
+    ['déclarée signée par le magasin : comptée', conventionSignee({ conventionSigneeLe: '2026-09-30' }), true],
+    ['règle avec convention signée : plus de « faire signer »', demandeSignature(verdictDepuisCriteres(criteres, { conventionSignee: true }).actions), false],
+    ['réseau national avec convention signée : rien à demander', verdictDepuisCriteres({ ...criteres, reseauNational: 'oui' }, { conventionSignee: true }).actions.length === 0, true],
+  ]
+  for (const [nom, obtenu, attendu] of cas) {
+    const ok = obtenu === attendu
+    if (!ok) echecs++
+    console.log(`${ok ? '✓' : '✗'} ${nom}`)
+  }
+}
+
+console.log('\n— Adresses : libellé et découpage —')
+{
+  const { decouperAdresse, libelleAdresse } = await import('../src/lib/adresse.ts')
+  const a = decouperAdresse('58 Boulevard Ornano, 75018 Paris')
+  const cas: [string, string, string][] = [
+    ['découpage voie', a.voie, '58 Boulevard Ornano'],
+    ['découpage code postal', a.codePostal, '75018'],
+    ['découpage commune', a.commune, 'Paris'],
+    ['aller-retour libellé', libelleAdresse(a), '58 Boulevard Ornano, 75018 Paris'],
+    ['commune seule', libelleAdresse({ voie: '', codePostal: '92150', commune: 'Suresnes' }), 'Suresnes 92150'],
+    ['saisie sans code postal gardée telle quelle', decouperAdresse('Lieu-dit Les Vignes').voie, 'Lieu-dit Les Vignes'],
+  ]
+  for (const [nom, obtenu, attendu] of cas) {
+    const ok = obtenu === attendu
+    if (!ok) echecs++
+    console.log(`${ok ? '✓' : '✗'} ${nom} : ${obtenu}`)
+  }
+}
+
 console.log(echecs === 0 ? '\nToutes les vérifications passent.' : `\n${echecs} vérification(s) en échec !`)
 process.exit(echecs === 0 && !process.exitCode ? 0 : 1)

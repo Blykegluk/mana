@@ -1656,3 +1656,34 @@ button.lien {
 .guide-equipe { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; }
 .guide-equipe h4 { margin: 0 0 6px; font-size: 14.5px; }
 .guide-liste { margin: 0; padding-left: 18px; font-size: 13.5px; line-height: 1.55; }
+
+/* Saisie d'adresse assistée (Base Adresse Nationale) */
+.champ-adresse {
+  position: relative;
+}
+.champ-adresse-liste {
+  position: absolute;
+  z-index: 30;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  margin: 0;
+  padding: 4px;
+  list-style: none;
+  background: var(--carte);
+  border: 1px solid var(--trait);
+  border-radius: 9px;
+  box-shadow: var(--ombre);
+  max-height: 280px;
+  overflow-y: auto;
+}
+.champ-adresse-liste li {
+  padding: 9px 10px;
+  border-radius: 7px;
+  cursor: pointer;
+  font-size: 14.5px;
+  line-height: 1.35;
+}
+.champ-adresse-liste li.actif {
+  background: var(--sable);
+}

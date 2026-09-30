@@ -6,6 +6,7 @@ import { compteId, creerDemande, derniersMessages, mesDemandes, type Demande, ty
 import { fmtNum } from '../lib/format'
 import { COLLECTEUR_VIDE, CollecteurForm, LIBELLES_ELIGIBILITE } from './CollecteurForm'
 import { CalendrierPassages } from './CalendrierPassages'
+import { ChampAdresse } from './ChampAdresse'
 
 const MOTIFS = [
   'L’association ne vient plus',
@@ -279,7 +280,7 @@ export function AssociationsMagasin({
             </label>
             <label className="field">
               <span>Ville ou code postal</span>
-              <input type="text" value={ville} onChange={(e) => setVille(e.target.value)} placeholder="Ex. Suresnes 92150" />
+              <ChampAdresse value={ville} onChange={setVille} communes placeholder="Ex. Suresnes 92150" />
             </label>
             <label className="field">
               <span>Invendus donnables (kg par jour, environ)</span>

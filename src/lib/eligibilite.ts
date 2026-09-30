@@ -1,4 +1,26 @@
-import type { AnalyseAssociation, Collecteur, CriteresAssociation } from '../types'
+import type { AnalyseAssociation, Collecteur, CriteresAssociation, Justificatif } from '../types'
+
+/** Motif affiché quand la convention de don signée est parmi les pièces. */
+export const MOTIF_CONVENTION = 'Convention de don signée jointe : elle engage l’association sur son statut, la gratuité et la délivrance des reçus.'
+
+/**
+ * Une convention de don signée est-elle parmi les pièces ? Oui si l'analyse a
+ * reconnu une convention lisible qu'elle ne décrit pas comme vierge, ou si une
+ * pièce porte le nom « Convention de don » que Mana lui a donné après lecture,
+ * ou si le magasin a déclaré l'avoir signée.
+ */
+export function conventionSignee(c: {
+  analyse?: Pick<AnalyseAssociation, 'documents'>
+  documents?: Justificatif[]
+  conventionSigneeLe?: string
+}): boolean {
+  if (c.conventionSigneeLe) return true
+  const vierge = /non sign|pas sign|sans signature|vierge|à signer|a signer/i
+  const lue = c.analyse?.documents.some((d) => d.type === 'convention' && d.lisible && !vierge.test(d.resume)) ?? false
+  const deposee = c.documents?.some((d) => /^convention de don/i.test(d.nom)) ?? false
+  const douteuse = c.analyse?.documents.some((d) => d.type === 'convention' && vierge.test(d.resume)) ?? false
+  return lue || (deposee && !douteuse)
+}
 
 /**
  * Règle de verdict — fixe, lisible, la même côté serveur et ici.
@@ -15,9 +37,13 @@ import type { AnalyseAssociation, Collecteur, CriteresAssociation } from '../typ
  *                de l'administration. Mana fournit alors la demande de rescrit
  *                préremplie et la convention de don à faire signer.
  */
-export function verdictDepuisCriteres(c: CriteresAssociation): { verdict: AnalyseAssociation['verdict']; motifs: string[]; actions: string[] } {
+export function verdictDepuisCriteres(
+  c: CriteresAssociation,
+  pieces: { conventionSignee?: boolean } = {},
+): { verdict: AnalyseAssociation['verdict']; motifs: string[]; actions: string[] } {
   const motifs: string[] = []
   const actions: string[] = []
+  const convention = MOTIF_CONVENTION
 
   const eliminatoires: [boolean, string][] = [
     [c.cercleRestreint === 'oui', 'Les pièces montrent une action réservée à un cercle restreint (membres, groupe fermé) : pas d’intérêt général possible.'],
@@ -41,7 +67,8 @@ export function verdictDepuisCriteres(c: CriteresAssociation): { verdict: Analys
   }
   if (c.reseauNational === 'oui') {
     motifs.push('Antenne d’un réseau national dont l’éligibilité est notoire : les reçus sont délivrés sous la responsabilité du réseau.')
-    actions.push('Faire signer la convention de don pour tracer les enlèvements ; rien d’autre à demander.')
+    if (pieces.conventionSignee) motifs.push(convention)
+    else actions.push('Faire signer la convention de don pour tracer les enlèvements ; rien d’autre à demander.')
     return { verdict: 'validee', motifs, actions }
   }
 
@@ -52,13 +79,14 @@ export function verdictDepuisCriteres(c: CriteresAssociation): { verdict: Analys
   if (c.objetEligible === 'oui') motifs.push('Objet social à caractère social ou d’aide alimentaire.')
   if (c.habilitationAideAlimentaire === 'oui') motifs.push('Habilitée pour l’aide alimentaire (L. 266-1 CASF) : indice fort d’intérêt général.')
   if (c.gratuiteBeneficiaires === 'oui') motifs.push('Denrées remises gratuitement ou contre participation symbolique.')
+  if (pieces.conventionSignee) motifs.push(convention)
 
   const manquants: string[] = []
   if (c.declarationPrefecture !== 'oui') manquants.push('le récépissé de déclaration en préfecture (ou l’extrait du JO)')
   if (c.gestionDesinteressee !== 'oui' || c.devolutionBoni !== 'oui' || c.objetEligible !== 'oui') manquants.push('les statuts complets et signés')
   if (manquants.length > 0) actions.push(`Demander à l’association : ${manquants.join(' ; ')}.`)
   actions.push('Faire déposer par l’association la demande de rescrit mécénat préremplie par Mana (réponse sous 6 mois ; sans réponse, l’association peut délivrer des reçus sans encourir l’amende).')
-  actions.push('Faire signer la convention de don fournie par Mana : elle engage l’association sur son statut, la gratuité et la délivrance des reçus.')
+  if (!pieces.conventionSignee) actions.push('Faire signer la convention de don fournie par Mana : elle engage l’association sur son statut, la gratuité et la délivrance des reçus.')
   actions.push('En attendant le rescrit, les dons restent possibles : le reçu de fin d’année reposera sur la convention et les pièces réunies.')
   return { verdict: 'a_securiser', motifs, actions }
 }

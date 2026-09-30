@@ -1309,7 +1309,7 @@ export async function pdfDemandeRescrit(asso: Collecteur, societe?: Societe) {
   y = champLigne(doc, 'Dénomination :', y, asso.nom)
   y = champLigne(doc, 'N° RNA :', y, asso.rna)
   y = champLigne(doc, 'N° SIREN (le cas échéant) :', y, asso.siren)
-  y = champLigne(doc, 'Adresse du siège :', y, asso.analyse?.association.siege)
+  y = champLigne(doc, 'Adresse du siège :', y, asso.adresse || asso.analyse?.association.siege || undefined)
   y = champLigne(doc, 'Date de déclaration en préfecture :', y, asso.analyse?.association.dateDeclaration ? fmtDate(asso.analyse.association.dateDeclaration) : undefined)
   y = champLigne(doc, 'Représentant légal (nom, qualité, téléphone, e-mail) :', y, [asso.contact, asso.telephone, asso.email].filter(Boolean).join(' · ') || undefined)
   y += 2
@@ -1367,7 +1367,7 @@ export async function pdfConventionDon(asso: Collecteur, societe?: Societe, maga
   y = paragraphe(doc, 'Entre les soussignés', y, { bold: true, size: 12, gap: 5 })
   const donateur = societe ? `${denomination(societe)}, SIREN ${societe.siren}${societe.verification.adresseSiege ? `, ${societe.verification.adresseSiege.voie}, ${societe.verification.adresseSiege.codePostal} ${societe.verification.adresseSiege.commune}` : ''}${magasin ? `, pour son magasin « ${magasin.nom} »` : ''}` : '……………………………………………… (société, SIREN, siège)'
   y = paragraphe(doc, `Le donateur : ${donateur}, représenté par ……………………………, ci-après « le Magasin » ;`, y)
-  const beneficiaire = `${asso.nom || '………………………'}${asso.rna ? `, RNA ${asso.rna}` : ''}${asso.siren ? `, SIREN ${asso.siren}` : ''}${asso.analyse?.association.siege ? `, siège : ${asso.analyse.association.siege}` : ', siège : ………………………'}`
+  const beneficiaire = `${asso.nom || '………………………'}${asso.rna ? `, RNA ${asso.rna}` : ''}${asso.siren ? `, SIREN ${asso.siren}` : ''}${(asso.adresse || asso.analyse?.association.siege) ? `, siège : ${asso.adresse || asso.analyse?.association.siege}` : ', siège : ………………………'}`
   y = paragraphe(doc, `Le bénéficiaire : l’association ${beneficiaire}, représentée par ${asso.contact || '……………………………'}, ci-après « l’Association ».`, y, { gap: 6 })
 
   const articles: [string, string][] = [

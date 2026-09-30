@@ -22,6 +22,8 @@ import { normaliserSiren, sirenValide, verifierSiren } from '../lib/entreprise'
 import { denomination } from '../lib/identite'
 import { COLLECTEUR_VIDE, CollecteurForm } from '../components/CollecteurForm'
 import { pdfModeleAttestation } from '../lib/pdf'
+import { ChampAdresse } from '../components/ChampAdresse'
+import { decouperAdresse, libelleAdresse } from '../lib/adresse'
 
 /**
  * Onboarding en deux temps (spec §4.1 + complément §2) :
@@ -484,6 +486,9 @@ function FormulaireSociete({
   const [sourcePiece, setSourcePiece] = useState<'liasse' | 'attestation'>('liasse')
   const [verifEnCours, setVerifEnCours] = useState(false)
   const [messageVerif, setMessageVerif] = useState('')
+  // Adresse du siège saisie à la main, quand le registre ne l'a pas fournie.
+  const [adresseSaisie, setAdresseSaisie] = useState(initial?.verification.adresseSiege ? libelleAdresse(initial.verification.adresseSiege) : '')
+  const adresseDuRegistre = verification.apiStatut === 'verifie' && !!verification.adresseSiege
 
   // Le CA et la marge sont liés au justificatif : modifiables uniquement
   // à la création ou en téléversant une nouvelle pièce.
@@ -536,6 +541,7 @@ function FormulaireSociete({
     if (!valide) return
     const maintenant = new Date().toISOString()
     const verif = { ...verification }
+    if (!adresseDuRegistre) verif.adresseSiege = adresseSaisie.trim() ? decouperAdresse(adresseSaisie) : undefined
     if (nouvellePiece) {
       verif.caVerifieLe = maintenant
       verif.caSource =
@@ -604,6 +610,13 @@ function FormulaireSociete({
             </span>
           )}
         </label>
+        {!adresseDuRegistre && (
+          <label className="field" style={{ marginTop: 14, marginBottom: 0 }}>
+            <span>Adresse du siège</span>
+            <ChampAdresse value={adresseSaisie} onChange={setAdresseSaisie} placeholder="Ex. 14 avenue de la Criolla, 92150 Suresnes" />
+            <span className="aide">Absente du registre : choisissez-la dans la liste, elle figure sur le reçu fiscal.</span>
+          </label>
+        )}
       </div>
 
       <div className="card">
@@ -800,8 +813,8 @@ function FormulaireMagasin({
         </label>
         <label className="field">
           <span>Adresse du magasin</span>
-          <input type="text" value={adresse} onChange={(e) => setAdresse(e.target.value)} placeholder="Ex. 58 boulevard Ornano, 75018 Paris" />
-          <span className="aide">Sert à trouver des associations à proximité et figure sur les bordereaux.</span>
+          <ChampAdresse value={adresse} onChange={setAdresse} placeholder="Ex. 58 boulevard Ornano, 75018 Paris" />
+          <span className="aide">Choisissez-la dans la liste : elle sert à trouver des associations proches et figure sur les bordereaux.</span>
         </label>
         <div className="field">
           <span>Bordereau : ce qui est pesé et comment c’est valorisé</span>

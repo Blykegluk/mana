@@ -54,7 +54,8 @@ excédent reportable 5 ans). Rémunération : 30 % de la réduction obtenue (= 1
 - **Secrets des fonctions** : `ANTHROPIC_API_KEY` (posé), `RESEND_API_KEY`, `MANA_EXPEDITEUR`, `MANA_WEBHOOK_SECRET`,
   `MANA_URL_PORTAIL` (non posés tant que le domaine n'existe pas, voir `COURRIER.md`).
 - **API externes** : Anthropic (Claude), recherche-entreprises.api.gouv.fr (vérification SIREN, `src/lib/entreprise.ts`),
-  Resend (e-mail, pas encore actif).
+  Base Adresse Nationale `data.geopf.fr/geocodage` (saisie d'adresse assistée, `src/lib/adresse.ts` + `ChampAdresse`,
+  sans clé), Resend (e-mail, pas encore actif). Toute nouvelle saisie d'adresse passe par `ChampAdresse`.
 
 ## Commandes
 
